@@ -47,6 +47,7 @@ install:
 	mv -f ${RESOURCES_DIR}/icons/hicolor/64x64/apps/qterminal.png \
 		${RESOURCES_DIR}/Terminal.png
 	rm -rf ${RESOURCES_DIR}/icons
+	tar -cJf ${APP_DIR}.txz ${APP_DIR}
 
 clean:
 	rm -rf ${QTERMINAL_DIR}/_build ${QTERMWIDGET_DIR}/_build
