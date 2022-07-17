@@ -44,6 +44,8 @@
 #include "shl_pty.h"
 #include "wlterm.h"
 
+extern const char **environ;
+
 struct term {
 	GtkWidget *window;
 	GdkKeymap *keymap;

@@ -373,7 +373,10 @@ void wlt_renderer_draw(const struct wlt_draw_ctx *ctx)
 	/* draw padding */
 	w = tsm_screen_get_width(ctx->screen);
 	h = tsm_screen_get_height(ctx->screen);
-	tsm_vte_get_def_attr(ctx->vte, &attr);
+	//tsm_vte_get_def_attr(ctx->vte, &attr);
+        attr.br = 255;
+        attr.bg = 255;
+        attr.bb = 255;
 	cairo_set_source_rgb(ctx->cr,
 			     attr.br / 255.0,
 			     attr.bg / 255.0,

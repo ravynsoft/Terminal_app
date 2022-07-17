@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
+#if 0
 int main(int argc, const char *argv[]) {
     __NSInitializeProcess(argc, argv);
 
@@ -37,4 +38,4 @@ int main(int argc, const char *argv[]) {
     [NSApp run];
     return 0;
 }
-
+#endif

@@ -12,7 +12,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#if __linux__
 #include <pty.h>
+#endif
 #include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -27,6 +29,7 @@
 #include "shl_pty.h"
 
 #define SHL_PTY_BUFSIZE 16384
+#define SIGUNUSED 31
 
 /*
  * Ring Buffer
@@ -389,7 +392,7 @@ pid_t shl_pty_open(struct shl_pty **out,
 	if (!pty)
 		return -ENOMEM;
 
-	fd = posix_openpt(O_RDWR | O_NOCTTY | O_CLOEXEC | O_NONBLOCK);
+	fd = posix_openpt(O_RDWR | O_NOCTTY | O_CLOEXEC /*| O_NONBLOCK*/);
 	if (fd < 0) {
 		free(pty);
 		return -errno;
