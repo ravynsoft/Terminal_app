@@ -20,39 +20,12 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import <AppKit/AppKit.h>
+#import "AppDelegate.h"
 
-static void __attribute__((noreturn)) runShell() {
-    char **argv = (char*[]){
-        getenv("SHELL") ? : _PATH_BSHELL,
-        "-il",
-        NULL
-    };
-
-    setenv("TERM", "ansi", 1);
-    execve(argv[0], argv, environ);
-    exit(1);
+@implementation AppDelegate
+- (void)selectInputSource:(NSSelectInputSource *)inputSource selectEvent:(NSUInteger)selectEvent {
+    NSLog(@"selectInputSource %@ event %d", inputSource, selectEvent);
 }
 
-static void term_set_geometry(struct term *term)
-{
-    NSRect frame = NSMakeRect(0, 0, 640, 480);
-    [term->win setFrame:frame display:YES];
-    [term->view setFrame:[term->win contentRectForFrameRect:frame]];
-}
+@end
 
-int main(int argc, const char *argv[]) {
-    __NSInitializeProcess(argc, argv);
-
-    NSAutoreleasePool *pool = [NSAutoreleasePool new];
-    [NSApplication sharedApplication];
-
-    AppDelegate *del = [AppDelegate new];
-    if(!del)
-        exit(EXIT_FAILURE);
-
-    [pool drain];
-    [NSApp run];
-    return 0;
-}
