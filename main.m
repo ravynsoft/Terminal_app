@@ -21,7 +21,20 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <Foundation/NSSocket_bsd.h>
+#import <Foundation/NSSelectInputSource.h>
 #import <AppKit/AppKit.h>
+#import "AppDelegate.h"
+
+#include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <libutil.h>
+#include <paths.h>
+
+extern char *const *environ;
 
 static void __attribute__((noreturn)) runShell() {
     char **argv = (char*[]){
@@ -35,13 +48,6 @@ static void __attribute__((noreturn)) runShell() {
     exit(1);
 }
 
-static void term_set_geometry(struct term *term)
-{
-    NSRect frame = NSMakeRect(0, 0, 640, 480);
-    [term->win setFrame:frame display:YES];
-    [term->view setFrame:[term->win contentRectForFrameRect:frame]];
-}
-
 int main(int argc, const char *argv[]) {
     __NSInitializeProcess(argc, argv);
 
@@ -51,6 +57,26 @@ int main(int argc, const char *argv[]) {
     AppDelegate *del = [AppDelegate new];
     if(!del)
         exit(EXIT_FAILURE);
+    [NSApp setDelegate:del];
+
+    struct winsize ws = {.ws_row = 25, .ws_col = 80};
+    int pty;
+
+    pid_t pid = forkpty(&pty, NULL, NULL, &ws);
+    if(pid < 0)
+        return -1;
+    else if(pid == 0) {
+        setsid();
+        signal(SIGCHLD, SIG_DFL);
+        runShell();
+        return -1;
+    }
+
+    NSSelectInputSource *inputSource = [NSSelectInputSource 
+        socketInputSourceWithSocket:[NSSocket_bsd socketWithDescriptor:pty]];
+    [inputSource setDelegate:del];
+    [inputSource setSelectEventMask:NSSelectReadEvent];
+    [[NSRunLoop mainRunLoop] addInputSource:inputSource forMode:NSDefaultRunLoopMode];
 
     [pool drain];
     [NSApp run];

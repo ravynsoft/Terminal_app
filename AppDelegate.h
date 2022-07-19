@@ -20,9 +20,19 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
+#import "tmt.h"
 
-@interface AppDelegate: NSObject
-- (void)selectInputSource:(NSSelectInputSource *)inputSource selectEvent:(NSUInteger)selectEvent;
+@interface AppDelegate: NSObject {
+    TMT *_tmt;
+    NSWindow *_window;
+    NSTextView *_view;
+    NSFont *_font;
+    NSSize _fontSize;
+    NSFileHandle *_handle;
+}
+
+- (void)updateView:(NSString *)s;
+
 @end
 
