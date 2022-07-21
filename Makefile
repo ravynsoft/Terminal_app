@@ -1,5 +1,6 @@
 APP=	        Terminal
 SRCS=	        AppDelegate.m \
+                TerminalView.m \
                 main.m \
                 tmt.c
 RESOURCES=	${.CURDIR}/Terminal.png

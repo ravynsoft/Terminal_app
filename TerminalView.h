@@ -21,13 +21,19 @@
  */
 
 #import <AppKit/AppKit.h>
-#import "TerminalView.h"
+#import "tmt.h"
 
-@interface AppDelegate: NSObject {
-    NSWindow *_window;
-    TerminalView *_view;
-    NSFileHandle *_handle;
+@interface TerminalView: NSView {
+    NSSize _termSize; // rows and columns, not pixels
+    TMT *_tmt;
+    NSColor *_bgColor;
+    NSFont *_font;
+    NSSize _fontSize;
+    NSDictionary *_attr;
+    NSUserDefaults *_prefs;
 }
+
+- (void)handlePTYInput:(NSData *)data;
 
 @end
 
