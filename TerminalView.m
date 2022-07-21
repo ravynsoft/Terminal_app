@@ -27,7 +27,7 @@ NSString * const PREFS_TERM_FONT_NAME = @"FontName";
 NSString * const PREFS_TERM_FONT_SIZE = @"FontSize";
 NSString * const PREFS_FG_COLOR = @"ForegroundColor";
 NSString * const PREFS_BG_COLOR = @"BackgroundColor";
-
+NSString * const PREFS_CURSOR_COLOR = @"CursorColor";
 
 static void TMTCallback(tmt_msg_t m, TMT *vt, const void *arg, void *p) {
     const TMTPOINT *curs = tmt_cursor(vt);
@@ -98,7 +98,6 @@ static CGFloat hexToFloat(unsigned char hex) {
     s = [_prefs objectForKey:PREFS_FG_COLOR];
     if(s && [s length] == 8)
         i = strtoul([s cString], NULL, 16);
-    NSLog(@"s = %@, len = %d, fg int = %08x",s, [s length], i);
     if(i == 0)
         i = 0xFF; // fully opaque black
     NSColor *fgColor = colorWithHexRGBA(i);
@@ -107,10 +106,10 @@ static CGFloat hexToFloat(unsigned char hex) {
     _attr = [NSDictionary dictionaryWithObjects:@[_font, fgColor]
         forKeys:@[NSFontAttributeName,NSForegroundColorAttributeName]];
 
+    i = 0;
     s = [_prefs objectForKey:PREFS_BG_COLOR]; 
     if(s && [s length] == 8)
         i = strtoul([s cString], NULL, 16);
-    NSLog(@"bg int = %08x", i);
     if(i == 0)
         i = 0xFAFCF5F0;
     _bgColor = colorWithHexRGBA(i);
@@ -118,6 +117,15 @@ static CGFloat hexToFloat(unsigned char hex) {
 
     NSAttributedString *as = [[NSAttributedString alloc] initWithString:@"M" attributes:_attr];
     _fontSize = [as size];
+
+    i = 0;
+    s = [_prefs objectForKey:PREFS_CURSOR_COLOR];
+    if(s && [s length] == 8)
+        i = strtoul([s cString], NULL, 16);
+    if(i == 0)
+        i = 0x333333FF; // fully opaque dark gray
+    _cursorColor = colorWithHexRGBA(i);
+    [_prefs setObject:[NSString stringWithFormat:@"%08X",i] forKey:PREFS_CURSOR_COLOR];
 
     [_prefs synchronize];
     NSRect frame = NSMakeRect(0,0,_termSize.width*_fontSize.width,_termSize.height*_fontSize.height);
@@ -136,6 +144,7 @@ static CGFloat hexToFloat(unsigned char hex) {
     const TMTSCREEN *screen = tmt_screen(_tmt);
     const TMTPOINT *curs = tmt_cursor(_tmt);
 
+    // render the screen
     NSMutableString *str = [NSMutableString new];
     char buffer[screen->ncol + 2];
     for(size_t row = 0; row < screen->nline; ++row) {
@@ -154,6 +163,14 @@ static CGFloat hexToFloat(unsigned char hex) {
 
     NSAttributedString *as = [[NSAttributedString alloc] initWithString:str attributes:_attr];
     [as drawInRect:[self frame]];
+
+    // draw the cursor, remembering our coords are inverted to the terminal's
+    NSRect cursor = NSZeroRect;
+    cursor.origin.x = curs->c * _fontSize.width;
+    cursor.origin.y = _frame.size.height - ((1 + curs->r) * _fontSize.height);
+    cursor.size = _fontSize;
+    [_cursorColor set];
+    [NSBezierPath fillRect:cursor];
 
     tmt_clean(_tmt);
 }

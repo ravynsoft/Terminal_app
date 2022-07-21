@@ -27,6 +27,7 @@
     NSSize _termSize; // rows and columns, not pixels
     TMT *_tmt;
     NSColor *_bgColor;
+    NSColor *_cursorColor;
     NSFont *_font;
     NSSize _fontSize;
     NSDictionary *_attr;
