@@ -32,9 +32,11 @@
     NSSize _fontSize;
     NSDictionary *_attr;
     NSUserDefaults *_prefs;
+    int _pty;
 }
 
 - (void)handlePTYInput:(NSData *)data;
+- (void)setPTY:(int)pty;
 
 @end
 

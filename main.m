@@ -78,6 +78,8 @@ int main(int argc, const char *argv[]) {
     [inputSource setSelectEventMask:NSSelectReadEvent];
     [[NSRunLoop mainRunLoop] addInputSource:inputSource forMode:NSDefaultRunLoopMode];
 
+    [del setPTY:pty];
+
     [pool drain];
     [NSApp run];
     return 0;

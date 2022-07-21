@@ -29,5 +29,7 @@
     NSFileHandle *_handle;
 }
 
+- (void)setPTY:(int)pty;
+
 @end
 

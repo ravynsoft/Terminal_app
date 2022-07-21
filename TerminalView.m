@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 
+#include <unistd.h>
 #import "TerminalView.h"
 
 NSString * const PREFS_TERM_SIZE = @"TerminalSize";
@@ -39,15 +40,14 @@ static void TMTCallback(tmt_msg_t m, TMT *vt, const void *arg, void *p) {
             NSLog(@"beep beep");
             break;
         case TMT_MSG_UPDATE:
-            NSLog(@"vt was updated");
             [(__bridge TerminalView *)p setNeedsDisplay:YES];
             break;
         case TMT_MSG_ANSWER:
             NSLog(@"terminal answered %s", (const char *)arg);
             break;
         case TMT_MSG_MOVED:
+            break;
         case TMT_MSG_CURSOR:
-            NSLog(@"cursor moved to %zd,%zd", curs->r, curs->c);
             [(__bridge TerminalView *)p setNeedsDisplay:YES];
             break;
     }
@@ -137,6 +137,10 @@ static CGFloat hexToFloat(unsigned char hex) {
         tmt_close(_tmt);
 }
 
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
     [_bgColor set];
     [NSBezierPath fillRect:dirtyRect];
@@ -182,6 +186,20 @@ static CGFloat hexToFloat(unsigned char hex) {
 
 - (void)handlePTYInput:(NSData *)data {
     tmt_write(_tmt, [data bytes], [data length]);
+}
+
+- (void)keyDown:(NSEvent *)event {
+    const char *s = [[event characters] cString];
+    int len = [[event characters] length];
+    // FIXME: handle key repeat if held down
+    write(_pty, s, len);
+}
+
+- (void)keyUp:(NSEvent *)event {
+}
+
+- (void)setPTY:(int)pty {
+    _pty = pty;
 }
 
 @end

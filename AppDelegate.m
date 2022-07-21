@@ -50,6 +50,10 @@
     [_view setFrame:[_window contentRectForFrameRect:frame]];
 }
 
+- (void)setPTY:(int)pty {
+    [_view setPTY:pty];
+}
+
 // called on _every_ pty input so keep this efficient!
 - (void)selectInputSource:(NSSelectInputSource *)inputSource selectEvent:(NSUInteger)selectEvent {
     if(!_handle)
