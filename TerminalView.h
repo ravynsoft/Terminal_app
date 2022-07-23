@@ -21,6 +21,7 @@
  */
 
 #import <AppKit/AppKit.h>
+#import <CoreGraphics/CoreGraphics.h>
 #import "tmt.h"
 
 @interface TerminalView: NSView {
@@ -33,9 +34,12 @@
     NSDictionary *_attr;
     NSUserDefaults *_prefs;
     int _pty;
+    CGContextRef _screenCtx; // render buffer
+    CGColorSpaceRef _cgColorSpace;
 }
 
-- (void)handlePTYInput:(NSData *)data;
+- (void)updateScreen;
+- (void)handlePTYInput;
 - (void)setPTY:(int)pty;
 
 @end

@@ -23,6 +23,7 @@
 #import <Foundation/NSSelectInputSource.h>
 #import <Foundation/NSSocket.h>
 #import "AppDelegate.h"
+#import "TerminalApp.h"
 
 @implementation AppDelegate
 - (AppDelegate *)init {
@@ -54,12 +55,8 @@
     [_view setPTY:pty];
 }
 
-// called on _every_ pty input so keep this efficient!
 - (void)selectInputSource:(NSSelectInputSource *)inputSource selectEvent:(NSUInteger)selectEvent {
-    if(!_handle)
-        _handle = [[NSFileHandle alloc] initWithFileDescriptor:[[inputSource socket] fileDescriptor]];
-
-    [_view handlePTYInput:[_handle availableData]];
+    [_view handlePTYInput];
 }
 
 @end

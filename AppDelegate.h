@@ -26,7 +26,6 @@
 @interface AppDelegate: NSObject {
     NSWindow *_window;
     TerminalView *_view;
-    NSFileHandle *_handle;
 }
 
 - (void)setPTY:(int)pty;
