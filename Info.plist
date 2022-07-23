@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>Terminal</string>
+	<string>Terminal.app</string>
 	<key>CFBundleDisplayName</key>
 	<string>Terminal</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.airyx.Terminal</string>
+	<string>com.ravynos.Terminal</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>CFBundlePackageType</key>
@@ -19,10 +19,10 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright (C) 2021 Airyx Project</string>
+	<string>Copyright (C) 2022 Zoe Knox</string>
 	<key>CFBundleIconFile</key>
 	<string>Terminal.png</string>
 	<key>NSPrincipalClass</key>
-	<string></string>
+	<string>NSApplication</string>
 </dict>
 </plist>
