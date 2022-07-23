@@ -6,7 +6,7 @@ SRCS=	        AppDelegate.m \
 RESOURCES=	${.CURDIR}/Terminal.png
 
 MK_WERROR=	no
-CFLAGS+=	-fobjc-arc -O3
+CFLAGS+=	-g -fobjc-arc -O3
 LDFLAGS+=	-framework AppKit -framework CoreGraphics \
                 -framework Foundation -lobjc -lSystem -lutil
 

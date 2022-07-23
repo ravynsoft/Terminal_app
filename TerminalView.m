@@ -100,7 +100,7 @@ static CGFloat hexToFloat(unsigned char hex) {
         i = strtoul([s cString], NULL, 16);
     if(i == 0)
         i = 0xFF; // fully opaque black
-    NSColor *fgColor = colorWithHexRGBA(i);
+    _fgColor = colorWithHexRGBA(i);
     [_prefs setObject:[NSString stringWithFormat:@"%08X",i] forKey:PREFS_FG_COLOR];
 
     i = 0;
@@ -112,7 +112,7 @@ static CGFloat hexToFloat(unsigned char hex) {
     _bgColor = colorWithHexRGBA(i);
     [_prefs setObject:[NSString stringWithFormat:@"%08X",i] forKey:PREFS_BG_COLOR];
 
-    _attr = [NSDictionary dictionaryWithObjects:@[_font, fgColor, _bgColor]
+    _attr = [NSDictionary dictionaryWithObjects:@[_font, _fgColor, _bgColor]
         forKeys:@[NSFontAttributeName,NSForegroundColorAttributeName,
         NSBackgroundColorAttributeName]];
     NSAttributedString *as = [[NSAttributedString alloc] initWithString:@"M" attributes:_attr];
@@ -128,6 +128,15 @@ static CGFloat hexToFloat(unsigned char hex) {
     [_prefs setObject:[NSString stringWithFormat:@"%08X",i] forKey:PREFS_CURSOR_COLOR];
 
     [_prefs synchronize];
+
+    ansi[TMT_COLOR_BLACK] = [NSColor blackColor];
+    ansi[TMT_COLOR_RED] = [NSColor redColor];
+    ansi[TMT_COLOR_GREEN] = [NSColor greenColor];
+    ansi[TMT_COLOR_YELLOW] = [NSColor yellowColor];
+    ansi[TMT_COLOR_BLUE] = [NSColor blueColor];
+    ansi[TMT_COLOR_MAGENTA] = [NSColor magentaColor];
+    ansi[TMT_COLOR_CYAN] = [NSColor cyanColor];
+    ansi[TMT_COLOR_WHITE] = [NSColor whiteColor];
 
     NSRect frame = NSMakeRect(0,0,_termSize.width*_fontSize.width,_termSize.height*_fontSize.height);
     return [self initWithFrame:frame];
@@ -163,6 +172,9 @@ static CGFloat hexToFloat(unsigned char hex) {
     NSGraphicsContext *current = [NSGraphicsContext currentContext];
     [NSGraphicsContext setCurrentContext:ctx];
 
+    NSMutableDictionary *attrs = [NSMutableDictionary new];
+    [attrs setDictionary:_attr];
+
     // render the screen
     char buffer[screen->ncol + 1];
     for(size_t row = 0; row < screen->nline; ++row) {
@@ -173,7 +185,17 @@ static CGFloat hexToFloat(unsigned char hex) {
             buffer[screen->ncol] = 0;
             
             NSString *str = [[NSString alloc] initWithUTF8String:buffer];
-            NSAttributedString *as = [[NSAttributedString alloc] initWithString:str attributes:_attr];
+            NSMutableAttributedString *as = [[NSMutableAttributedString alloc]
+                initWithString:str attributes:attrs];
+            for(size_t col = 0; col < screen->ncol; ++col) {
+                int fg = screen->lines[row]->chars[col].a.fg;
+                int bg = screen->lines[row]->chars[col].a.bg;
+                [attrs setObject:(fg > 0 && fg < TMT_COLOR_MAX) ? ansi[fg] : _fgColor
+                    forKey:NSForegroundColorAttributeName];
+                [attrs setObject:(bg > 0 && bg < TMT_COLOR_MAX) ? ansi[bg] : _bgColor
+                    forKey:NSBackgroundColorAttributeName];
+                [as setAttributes:attrs range:NSMakeRange(col,1)];
+            }
             NSRect lineRect = NSMakeRect(0, _frame.size.height - ((1 + row) * _fontSize.height),
                 _frame.size.width, _fontSize.height);
             [as drawInRect:lineRect];

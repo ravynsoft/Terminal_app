@@ -23,7 +23,6 @@
 #import <Foundation/NSSelectInputSource.h>
 #import <Foundation/NSSocket.h>
 #import "AppDelegate.h"
-#import "TerminalApp.h"
 
 @implementation AppDelegate
 - (AppDelegate *)init {

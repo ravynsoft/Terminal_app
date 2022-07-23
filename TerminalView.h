@@ -27,8 +27,10 @@
 @interface TerminalView: NSView {
     NSSize _termSize; // rows and columns, not pixels
     TMT *_tmt;
+    NSColor *_fgColor;
     NSColor *_bgColor;
     NSColor *_cursorColor;
+    NSColor *ansi[9];
     NSFont *_font;
     NSSize _fontSize;
     NSDictionary *_attr;
