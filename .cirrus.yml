@@ -13,7 +13,7 @@ build_task:
   script:
     - fetch -o /tmp/ravynOS.txz  https://api.cirrus-ci.com/v1/artifact/github/ravynsoft/ravynos/system/ravynOS/dist/ravynOS.txz 
     - tar -C / -xvf /tmp/ravynOS.txz
-    - make 
+    - make CC=clang
     - tar cJvf Terminal.app.txz Terminal.app
   only_if: $CIRRUS_BRANCH == 'main'
   app_artifacts:
