@@ -29,6 +29,7 @@
 }
 
 - (void)setPTY:(int)pty;
+- (NSSize)terminalSize;
 
 @end
 

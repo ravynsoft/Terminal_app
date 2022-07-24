@@ -54,6 +54,10 @@
     [_view setPTY:pty];
 }
 
+- (NSSize)terminalSize {
+    return [_view terminalSize];
+}
+
 - (void)selectInputSource:(NSSelectInputSource *)inputSource selectEvent:(NSUInteger)selectEvent {
     [_view handlePTYInput];
 }

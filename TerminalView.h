@@ -37,12 +37,14 @@
     NSUserDefaults *_prefs;
     int _pty;
     CGContextRef _screenCtx; // render buffer
+    NSGraphicsContext *_screenNSCtx;
     CGColorSpaceRef _cgColorSpace;
 }
 
 - (void)updateScreen;
 - (void)handlePTYInput;
 - (void)setPTY:(int)pty;
+- (NSSize)terminalSize;
 
 @end
 

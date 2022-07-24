@@ -21,6 +21,7 @@
  */
 
 #include <unistd.h>
+#include <sys/ioctl.h>
 #import "TerminalView.h"
 
 NSString * const PREFS_TERM_SIZE = @"TerminalSize";
@@ -79,7 +80,8 @@ static CGFloat hexToFloat(unsigned char hex) {
     [_prefs setObject:NSStringFromSize(_termSize) forKey:PREFS_TERM_SIZE];
 
     // virtual terminal screen buffer
-    _tmt = tmt_open(_termSize.height, _termSize.width, TMTCallback, (__bridge void *)self, NULL);
+    _tmt = tmt_open(_termSize.height, _termSize.width, TMTCallback,
+        (__bridge void *)self, L"→←↑↓■◆▒°±▒┘┐┌└┼⎺───⎽├┤┴┬│≤≥π≠£•");
     if(!_tmt)
         return nil;
 
@@ -162,15 +164,14 @@ static CGFloat hexToFloat(unsigned char hex) {
         _cgColorSpace = CGColorSpaceCreateDeviceRGB();
         _screenCtx = CGBitmapContextCreate(NULL, _frame.size.width, _frame.size.height,
             8, 0, _cgColorSpace, kCGImageAlphaPremultipliedLast|kCGBitmapByteOrder32Little);
+        _screenNSCtx = [NSGraphicsContext
+            graphicsContextWithGraphicsPort:_screenCtx flipped:NO];
     }
 
-    const TMTPOINT *curs = tmt_cursor(_tmt);
     const TMTSCREEN *screen = tmt_screen(_tmt);
 
-    NSGraphicsContext *ctx = [NSGraphicsContext
-        graphicsContextWithGraphicsPort:_screenCtx flipped:NO];
-    NSGraphicsContext *current = [NSGraphicsContext currentContext];
-    [NSGraphicsContext setCurrentContext:ctx];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:_screenNSCtx];
 
     NSMutableDictionary *attrs = [NSMutableDictionary new];
     [attrs setDictionary:_attr];
@@ -194,7 +195,8 @@ static CGFloat hexToFloat(unsigned char hex) {
                     forKey:NSForegroundColorAttributeName];
                 [attrs setObject:(bg > 0 && bg < TMT_COLOR_MAX) ? ansi[bg] : _bgColor
                     forKey:NSBackgroundColorAttributeName];
-                [as setAttributes:attrs range:NSMakeRange(col,1)];
+                int length = [as length];
+                [as setAttributes:attrs range:NSMakeRange(col,(col+1 > length) ? 0 : 1)];
             }
             NSRect lineRect = NSMakeRect(0, _frame.size.height - ((1 + row) * _fontSize.height),
                 _frame.size.width, _fontSize.height);
@@ -202,15 +204,7 @@ static CGFloat hexToFloat(unsigned char hex) {
         }
     }
 
-    // draw the cursor, remembering our coords are inverted to the terminal's
-    NSRect cursor = NSZeroRect;
-    cursor.origin.x = curs->c * _fontSize.width;
-    cursor.origin.y = _frame.size.height - ((1 + curs->r) * _fontSize.height);
-    cursor.size = _fontSize;
-    [_cursorColor set]; 
-    [NSBezierPath fillRect:cursor];
-
-    [NSGraphicsContext setCurrentContext:current];
+    [NSGraphicsContext restoreGraphicsState];
     tmt_clean(_tmt);
     [self setNeedsDisplay:YES];
 }
@@ -220,14 +214,34 @@ static CGFloat hexToFloat(unsigned char hex) {
         return;
     }
 
+    NSAutoreleasePool *pool = [NSAutoreleasePool new];
     CGImageRef image = CGBitmapContextCreateImage(_screenCtx);
     CGContextDrawImage([[NSGraphicsContext currentContext] graphicsPort], _frame, image);
     CGImageRelease(image);
+
+    // draw the cursor, remembering our coords are inverted to the terminal's
+    const TMTPOINT *curs = tmt_cursor(_tmt);
+    NSRect cursor = NSZeroRect;
+    cursor.origin.x = curs->c * _fontSize.width;
+    cursor.origin.y = _frame.size.height - ((1 + curs->r) * _fontSize.height);
+    cursor.size = _fontSize;
+    [_cursorColor set]; 
+    [NSBezierPath fillRect:cursor];
 }
 
 - (void)setFrame:(NSRect)frame {
+    int rows = frame.size.height / _fontSize.height;
+    int cols = frame.size.width / _fontSize.width;
+
+    frame.size.height = rows * _fontSize.height;
+    frame.size.width = cols * _fontSize.width;
+
     [super setFrame:frame];
-//    tmt_resize(...);
+
+    tmt_resize(_tmt, rows, cols);
+
+    struct winsize ws = { .ws_col = cols, .ws_row = rows };
+    ioctl(_pty, TIOCSWINSZ, &ws);
 }
 
 // called on _every_ pty input so keep this efficient!
@@ -239,10 +253,76 @@ static CGFloat hexToFloat(unsigned char hex) {
 }
 
 - (void)keyDown:(NSEvent *)event {
-    const char *s = [[event characters] cString];
-    int len = [[event characters] length];
+    if([[event characters] length] <= 0)
+        return;
+
+    unichar s = [[event characters] characterAtIndex:0];
+
+    switch(s) {
+        case NSUpArrowFunctionKey:
+            write(_pty, TMT_KEY_UP, strlen(TMT_KEY_UP));
+            break;
+        case NSDownArrowFunctionKey:
+            write(_pty, TMT_KEY_DOWN, strlen(TMT_KEY_DOWN));
+            break;
+        case NSLeftArrowFunctionKey:
+            write(_pty, TMT_KEY_LEFT, strlen(TMT_KEY_LEFT));
+            break;
+        case NSRightArrowFunctionKey:
+            write(_pty, TMT_KEY_RIGHT, strlen(TMT_KEY_RIGHT));
+            break;
+        case NSHomeFunctionKey:
+            write(_pty, TMT_KEY_HOME, strlen(TMT_KEY_HOME));
+            break;
+        case NSEndFunctionKey:
+            write(_pty, TMT_KEY_END, strlen(TMT_KEY_END));
+            break;
+        case NSInsertFunctionKey:
+            write(_pty, TMT_KEY_INSERT, strlen(TMT_KEY_INSERT));
+            break;
+        case NSPageUpFunctionKey:
+            write(_pty, TMT_KEY_PAGE_UP, strlen(TMT_KEY_PAGE_UP));
+            break;
+        case NSPageDownFunctionKey:
+            write(_pty, TMT_KEY_PAGE_DOWN, strlen(TMT_KEY_PAGE_DOWN));
+            break;
+        case NSF1FunctionKey:
+            write(_pty, TMT_KEY_F1, strlen(TMT_KEY_F1));
+            break;
+        case NSF2FunctionKey:
+            write(_pty, TMT_KEY_F2, strlen(TMT_KEY_F2));
+            break;
+        case NSF3FunctionKey:
+            write(_pty, TMT_KEY_F3, strlen(TMT_KEY_F3));
+            break;
+        case NSF4FunctionKey:
+            write(_pty, TMT_KEY_F4, strlen(TMT_KEY_F4));
+            break;
+        case NSF5FunctionKey:
+            write(_pty, TMT_KEY_F5, strlen(TMT_KEY_F5));
+            break;
+        case NSF6FunctionKey:
+            write(_pty, TMT_KEY_F6, strlen(TMT_KEY_F6));
+            break;
+        case NSF7FunctionKey:
+            write(_pty, TMT_KEY_F7, strlen(TMT_KEY_F7));
+            break;
+        case NSF8FunctionKey:
+            write(_pty, TMT_KEY_F8, strlen(TMT_KEY_F8));
+            break;
+        case NSF9FunctionKey:
+            write(_pty, TMT_KEY_F9, strlen(TMT_KEY_F9));
+            break;
+        case NSF10FunctionKey:
+            write(_pty, TMT_KEY_F10, strlen(TMT_KEY_F10));
+            break;
+        default:
+            write(_pty, &s, sizeof(s));
+            break;
+    }
+
     // FIXME: handle key repeat if held down
-    write(_pty, s, len);
+    // want to get global repeat delay and rate from WindowServer config
 }
 
 - (void)keyUp:(NSEvent *)event {
@@ -251,6 +331,10 @@ static CGFloat hexToFloat(unsigned char hex) {
 - (void)setPTY:(int)pty {
     _pty = pty;
     ready = YES;
+}
+
+- (NSSize)terminalSize {
+    return _termSize;
 }
 
 @end

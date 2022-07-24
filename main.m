@@ -59,7 +59,8 @@ int main(int argc, const char *argv[]) {
         exit(EXIT_FAILURE);
     [NSApp setDelegate:del];
 
-    struct winsize ws = {.ws_row = 25, .ws_col = 80};
+    NSSize size = [del terminalSize];
+    struct winsize ws = {.ws_row = size.height, .ws_col = size.width};
     int pty;
 
     pid_t pid = forkpty(&pty, NULL, NULL, &ws);
