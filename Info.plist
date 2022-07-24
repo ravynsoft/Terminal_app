@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.ravynos.Terminal</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>0.9.0</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
@@ -17,7 +17,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Terminal</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>0.9.0</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright (C) 2022 Zoe Knox</string>
 	<key>CFBundleIconFile</key>
