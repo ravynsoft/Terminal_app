@@ -213,8 +213,8 @@ static CGFloat hexToFloat(unsigned char hex) {
     if(!_screenCtx) {
         return;
     }
-
     NSAutoreleasePool *pool = [NSAutoreleasePool new];
+
     CGImageRef image = CGBitmapContextCreateImage(_screenCtx);
     CGContextDrawImage([[NSGraphicsContext currentContext] graphicsPort], _frame, image);
     CGImageRelease(image);
@@ -256,9 +256,10 @@ static CGFloat hexToFloat(unsigned char hex) {
     if([[event characters] length] <= 0)
         return;
 
-    unichar s = [[event characters] characterAtIndex:0];
+    unichar ch = [[event characters] characterAtIndex:0];
+    char *s = [[event characters] UTF8String];
 
-    switch(s) {
+    switch(ch) {
         case NSUpArrowFunctionKey:
             write(_pty, TMT_KEY_UP, strlen(TMT_KEY_UP));
             break;
@@ -317,7 +318,7 @@ static CGFloat hexToFloat(unsigned char hex) {
             write(_pty, TMT_KEY_F10, strlen(TMT_KEY_F10));
             break;
         default:
-            write(_pty, &s, sizeof(s));
+            write(_pty, s, strlen(s));
             break;
     }
 

@@ -37,6 +37,8 @@
 #define TMT_INVALID_CHAR ((wchar_t)0xfffd)
 #endif
 
+#define TMT_HAS_WCWIDTH 1
+
 /**** INPUT SEQUENCES */
 #define TMT_KEY_UP             "\033[A"
 #define TMT_KEY_DOWN           "\033[B"
