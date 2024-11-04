@@ -76,7 +76,7 @@ static CGFloat hexToFloat(unsigned char hex) {
     _screenCtx = NULL;
     _prefs = [NSUserDefaults standardUserDefaults];
     NSString *s = [_prefs objectForKey:PREFS_TERM_SIZE]; 
-    _termSize = NSSizeFromString(s != nil ? s : @"{80,25}");
+    _termSize = (s != nil) ? NSSizeFromString(s) : NSMakeSize(80,25);
     [_prefs setObject:NSStringFromSize(_termSize) forKey:PREFS_TERM_SIZE];
 
     // virtual terminal screen buffer
@@ -87,7 +87,7 @@ static CGFloat hexToFloat(unsigned char hex) {
 
     s = [_prefs objectForKey:PREFS_TERM_FONT_NAME];
     if(!s)
-        s = @"DejaVu Sans Mono-Book";
+        s = @"NimbusMonoPS-Regular";
     float pointsize = [_prefs floatForKey:PREFS_TERM_FONT_SIZE];
     if(pointsize < 2.0)
         pointsize = 12.0;

@@ -30,6 +30,11 @@
     _view = [TerminalView new];
     NSRect frame = [_view frame];
 
+    NSRect visible = [[NSScreen mainScreen] visibleFrame];
+    frame.origin.x = visible.size.width / 2 - frame.size.width / 2;
+    frame.origin.y = visible.size.height / 2 + frame.size.height / 2;
+    NSLog(@"frame %@", NSStringFromRect(frame));
+
     _window = [[NSWindow alloc] initWithContentRect:frame
         styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:NO];
     [_window setTitle:@"Terminal"];
