@@ -32,7 +32,7 @@
 
     NSRect visible = [[NSScreen mainScreen] visibleFrame];
     frame.origin.x = visible.size.width / 2 - frame.size.width / 2;
-    frame.origin.y = visible.size.height / 2 + frame.size.height / 2;
+    frame.origin.y = visible.size.height - frame.size.height - 100;
     NSLog(@"frame %@", NSStringFromRect(frame));
 
     _window = [[NSWindow alloc] initWithContentRect:frame
