@@ -24,7 +24,8 @@
 #include <sys/ioctl.h>
 #import "TerminalView.h"
 
-NSString * const PREFS_TERM_SIZE = @"TerminalSize";
+NSString * const PREFS_TERM_COLS = @"TerminalColumns";
+NSString * const PREFS_TERM_ROWS = @"TerminalRows";
 NSString * const PREFS_TERM_FONT_NAME = @"FontName";
 NSString * const PREFS_TERM_FONT_SIZE = @"FontSize";
 NSString * const PREFS_FG_COLOR = @"ForegroundColor";
@@ -75,13 +76,13 @@ static CGFloat hexToFloat(unsigned char hex) {
 - (TerminalView *)init {
     _screenCtx = NULL;
     _prefs = [NSUserDefaults standardUserDefaults];
-    NSString *s = [_prefs objectForKey:PREFS_TERM_SIZE]; 
-    _termSize = (s != nil) ? NSSizeFromString(s) : NSMakeSize(80,25);
-    if(_termSize.width < 40)
-        _termSize.width = 40;
-    if(_termSize.height < 10)
-        _termSize.height = 10;
-    [_prefs setObject:NSStringFromSize(_termSize) forKey:PREFS_TERM_SIZE];
+
+    int cols = [_prefs integerForKey:PREFS_TERM_COLS]; 
+    _termSize.width = cols <= 0 ? MAX(40, cols) : 80;
+    int rows = [_prefs integerForKey:PREFS_TERM_ROWS]; 
+    _termSize.height = rows <= 0 ? MAX(10, rows) : 25;
+    [_prefs setInteger:_termSize.width forKey:PREFS_TERM_COLS];
+    [_prefs setInteger:_termSize.height forKey:PREFS_TERM_ROWS];
 
     // virtual terminal screen buffer
     _tmt = tmt_open(_termSize.height, _termSize.width, TMTCallback,
@@ -89,7 +90,7 @@ static CGFloat hexToFloat(unsigned char hex) {
     if(!_tmt)
         return nil;
 
-    s = [_prefs objectForKey:PREFS_TERM_FONT_NAME];
+    NSString *s = [_prefs objectForKey:PREFS_TERM_FONT_NAME];
     if(!s)
         s = @"NimbusMonoPS-Regular";
     float pointsize = [_prefs floatForKey:PREFS_TERM_FONT_SIZE];
