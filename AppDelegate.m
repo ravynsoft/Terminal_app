@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Zoe Knox <zoe@pixin.net>
+ * Copyright (C) 2022-2024 Zoe Knox <zoe@pixin.net>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,11 +33,26 @@
     NSRect visible = [[NSScreen mainScreen] visibleFrame];
     frame.origin.x = visible.size.width / 2 - frame.size.width / 2;
     frame.origin.y = visible.size.height - frame.size.height - 100;
-    NSLog(@"frame %@", NSStringFromRect(frame));
 
     _window = [[NSWindow alloc] initWithContentRect:frame
         styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:NO];
     [_window setTitle:@"Terminal"];
+
+    // Create some menus
+    NSMenu *mainMenu = [NSMenu new];
+    [mainMenu setDelegate:self];
+    [mainMenu setAutoenablesItems:YES];
+
+    NSMenu *windows = [NSMenu new];
+    [windows setValue:@"_NSWindowsMenu" forKey:@"name"];
+    [windows setDelegate:self];
+
+    NSMenuItem *item = [mainMenu addItemWithTitle:@"Window" action:NULL keyEquivalent:@""];
+    [item setTarget:self];
+    [item setSubmenu:windows];
+
+    [NSApp setMenu:mainMenu];
+    [NSApp addWindowsItem:_window title:[_window title] filename:NO];
 
     // allow terminal to be transparent :)
     [_window setBackgroundColor:[NSColor colorWithDeviceRed:1. green:1. blue:1. alpha:0]];

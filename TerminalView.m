@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Zoe Knox <zoe@pixin.net>
+ * Copyright (C) 2022-2024 Zoe Knox <zoe@pixin.net>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -77,6 +77,10 @@ static CGFloat hexToFloat(unsigned char hex) {
     _prefs = [NSUserDefaults standardUserDefaults];
     NSString *s = [_prefs objectForKey:PREFS_TERM_SIZE]; 
     _termSize = (s != nil) ? NSSizeFromString(s) : NSMakeSize(80,25);
+    if(_termSize.width < 40)
+        _termSize.width = 40;
+    if(_termSize.height < 10)
+        _termSize.height = 10;
     [_prefs setObject:NSStringFromSize(_termSize) forKey:PREFS_TERM_SIZE];
 
     // virtual terminal screen buffer

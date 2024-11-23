@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Zoe Knox <zoe@pixin.net>
+ * Copyright (C) 2022-2024 Zoe Knox <zoe@pixin.net>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,10 @@
 #include <libutil.h>
 #include <paths.h>
 
+@interface NSMenu(private)
+-(NSMenu *)_menuWithName:(NSString *)name;
+@end
+
 extern char *const *environ;
 
 static void __attribute__((noreturn)) runShell() {
@@ -44,6 +48,8 @@ static void __attribute__((noreturn)) runShell() {
     };
 
     setenv("TERM", "ansi", 1);
+    setenv("LANG", "C.UTF-8", 0); // don't overwrite if set
+    chdir([NSHomeDirectory() UTF8String]);
     execve(argv[0], argv, environ);
     exit(1);
 }
