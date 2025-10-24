@@ -9,6 +9,6 @@ MK_WERROR=	no
 MK_PIE=		no
 CFLAGS+=	-g -fobjc-arc -O3
 LDFLAGS+=	-framework AppKit -framework CoreGraphics \
-                -framework Foundation -lobjc -lSystem /lib/libutil.so.9
+                -framework Foundation -lobjc -lSystem /lib/libutil.so.10
 
 .include <rvn.app.mk>
