@@ -78,9 +78,9 @@ static CGFloat hexToFloat(unsigned char hex) {
     _prefs = [NSUserDefaults standardUserDefaults];
 
     int cols = [_prefs integerForKey:PREFS_TERM_COLS]; 
-    _termSize.width = cols <= 0 ? MAX(40, cols) : 80;
+    _termSize.width = cols <= 0 ? 80 : MAX(40, cols);
     int rows = [_prefs integerForKey:PREFS_TERM_ROWS]; 
-    _termSize.height = rows <= 0 ? MAX(10, rows) : 25;
+    _termSize.height = rows <= 0 ? 25 : MAX(10, rows);
     [_prefs setInteger:_termSize.width forKey:PREFS_TERM_COLS];
     [_prefs setInteger:_termSize.height forKey:PREFS_TERM_ROWS];
 
@@ -95,7 +95,7 @@ static CGFloat hexToFloat(unsigned char hex) {
         s = @"NimbusMonoPS-Regular";
     float pointsize = [_prefs floatForKey:PREFS_TERM_FONT_SIZE];
     if(pointsize < 2.0)
-        pointsize = 12.0;
+        pointsize = 13.0;
     [_prefs setObject:s forKey:PREFS_TERM_FONT_NAME];
     [_prefs setFloat:pointsize forKey:PREFS_TERM_FONT_SIZE];
 
@@ -106,7 +106,7 @@ static CGFloat hexToFloat(unsigned char hex) {
     if(s && [s length] == 8)
         i = strtoul([s cString], NULL, 16);
     if(i == 0)
-        i = 0xFF; // fully opaque black
+        i = 0xFFFFFFFF; // fully opaque white
     _fgColor = colorWithHexRGBA(i);
     [_prefs setObject:[NSString stringWithFormat:@"%08X",i] forKey:PREFS_FG_COLOR];
 
@@ -115,7 +115,7 @@ static CGFloat hexToFloat(unsigned char hex) {
     if(s && [s length] == 8)
         i = strtoul([s cString], NULL, 16);
     if(i == 0)
-        i = 0xFAFCF5F0;
+        i = 0x101010F0;
     _bgColor = colorWithHexRGBA(i);
     [_prefs setObject:[NSString stringWithFormat:@"%08X",i] forKey:PREFS_BG_COLOR];
 
